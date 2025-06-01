@@ -43,7 +43,7 @@ go install github.com/githubnemo/CompileDaemon@latest
 
 Add `export PATH="$HOME/go/bin:$PATH"` to your `shell` file (`.zshrc` or `.bashrc`)
 
-### 4. Add an alias in your `shell` file
+### 4. Add an alias in your `shell` file (Optional)
 
 ```bash
 alias gomon="CompileDaemon -build='go build -o myapp main.go' -command='./myapp'"
@@ -51,8 +51,16 @@ alias gomon="CompileDaemon -build='go build -o myapp main.go' -command='./myapp'
 
 ### 5. Run the application
 
+If CompileDaemon is installed
+
 ```bash
 gomon
+```
+
+OR if CompileDaemon is not installed
+
+```
+go run .
 ```
 
 ## API Endpoints
