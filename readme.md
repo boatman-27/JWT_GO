@@ -15,6 +15,34 @@ This is a simple and secure user authentication and authorization API built with
 
 ---
 
+## Users table SQL
+
+```SQL
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    fname VARCHAR(255) NOT NULL,
+    lname VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    userId VARCHAR(10) NOT NULL UNIQUE,
+    role VARCHAR(10) NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user'))
+
+    -- Gamification fields
+    coins INT DEFAULT 0 CHECK (coins >= 0), -- Users earn/spend coins through tasks & shop
+    xp INT DEFAULT 0 CHECK (xp >= 0), -- Experience points for leveling up
+    level INT DEFAULT 1 CHECK (level >= 1), -- Users rank up based on XP
+    streak INT DEFAULT 0 CHECK (streak >= 0), -- Daily task completion streak
+
+    -- Social features
+    friends_count INT DEFAULT 0 CHECK (friends_count >= 0), -- Number of friends added
+    leaderboard_rank INT DEFAULT NULL, -- Rank in global leaderboard
+    last_active TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP -- For activity tracking
+);
+```
+
+---
+
 ## Quick start
 
 ### 1. Clone the repository
