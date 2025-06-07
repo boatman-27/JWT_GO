@@ -114,7 +114,7 @@ go run .
 }
 ```
 
-#### Example JSON for Register
+#### Example JSON for Login
 
 ```JSON
 {
