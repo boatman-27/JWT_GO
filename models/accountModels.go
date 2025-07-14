@@ -41,3 +41,15 @@ type NewUser struct {
 	Password string `json:"password"`
 	UserId   string `json:"userid"`
 }
+
+type UpdatedUser struct {
+	Fname string `db:"fname" json:"fname"`
+	Lname string `db:"lname" json:"lname"`
+	Email string `db:"email" json:"email"`
+}
+
+type ChangePasswordData struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+	ConfirmNewP string `json:"confirmNewP"`
+}

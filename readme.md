@@ -1,6 +1,6 @@
-# JWT Authentication API with Go + Gin
-
 This is a simple and secure user authentication and authorization API built with **Go** using the **Gin** web framework. It supports registration, login, access and refresh token generation, protected routes, and logout functionality using **JWT**.
+
+A RESTful API built with **Golang**, **Gin**, **JWT**, and **PostgreSQL** to manage user tasks. The API allows authenticated users to create, retrieve, update, and delete their tasks — and earn coins upon completing them!
 
 ## Features
 
@@ -9,15 +9,17 @@ This is a simple and secure user authentication and authorization API built with
 - HttpOnly Cookies for secure refresh tokens
 - Access Token Refresh Endpoint
 - Middleware to protect routes (`RequireAuth`)
+- Get current user data
+- Update user info & regenerate tokens if email changes
+- Secure password change with bcrypt
 - User sanitization (no passwords in responses)
-- Bcrypt password hashing
 - PostgreSQL integration
 
 ---
 
-## Users table SQL
+## Users table sQL
 
-```SQL
+```sQL
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     fname VARCHAR(255) NOT NULL,
@@ -40,8 +42,6 @@ CREATE TABLE users (
     last_active TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP -- For activity tracking
 );
 ```
-
----
 
 ## Quick start
 
@@ -71,7 +71,7 @@ go install github.com/githubnemo/CompileDaemon@latest
 
 Add `export PATH="$HOME/go/bin:$PATH"` to your `shell` file (`.zshrc` or `.bashrc`)
 
-### 4. Add an alias in your `shell` file (Optional)
+### 4. Add an alias in your `shell` file
 
 ```bash
 alias gomon="CompileDaemon -build='go build -o myapp main.go' -command='./myapp'"
@@ -79,28 +79,27 @@ alias gomon="CompileDaemon -build='go build -o myapp main.go' -command='./myapp'
 
 ### 5. Run the application
 
-If CompileDaemon is installed
-
 ```bash
+# With CompileDaemon
 gomon
-```
 
-OR if CompileDaemon is not installed
-
-```
+# Or without
 go run .
 ```
 
 ## API Endpoints
 
-| Method | Endpoint                | Description               |
-| ------ | ----------------------- | ------------------------- |
-| POST   | `/account/register`     | Register a new user       |
-| POST   | `/account/login`        | Login user and get tokens |
-| POST   | `/account/refreshtoken` | Refresh access token      |
-| GET    | `/account/validate`     | Validate access token     |
-| GET    | `/account/users`        | Get all users             |
-| POST   | `/account/logout`       | Logout (clear cookie)     |
+| Method | Endpoint                  | Description                           |
+| ------ | ------------------------- | ------------------------------------- |
+| POST   | `/account/register`       | Register a new user                   |
+| POST   | `/account/login`          | Login user and get tokens             |
+| POST   | `/account/refreshtoken`   | Refresh access token                  |
+| GET    | `/account/validate`       | Validate access token & get user info |
+| GET    | `/account/me`             | Get current user’s data               |
+| PUT    | `/account/update`         | Update user profile info              |
+| PUT    | `/account/changepassword` | Change user password                  |
+| GET    | `/account/users`          | Get all users                         |
+| POST   | `/account/logout`         | Logout (clear refresh token cookie)   |
 
 #### Example JSON for Register
 
@@ -121,6 +120,28 @@ go run .
 	"email": "someemail@example.com",
 	"password": "SomePassword"
 }
+```
+
+#### Example JSON for Update user
+
+```bash
+{
+  "fname": "Johnny",
+  "lname": "Doe",
+  "email": "newemail@example.com"
+}
+
+```
+
+#### Example JSON for Change Password
+
+```bash
+{
+  "oldPassword": "OldPassword123",
+  "newPassword": "NewPassword456",
+  "confirmNewP": "NewPassword456"
+}
+
 ```
 
 ## How Authentication Works

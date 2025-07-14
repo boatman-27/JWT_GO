@@ -78,3 +78,41 @@ func CreateNewUser(newUser accountModels.NewUser, hashedPassword string) (accoun
 
 	return SanitizeUser(createdUser), err
 }
+
+func CheckEmailExistsForUpdate(email, currentUserId string) bool {
+	var count int
+	err := DB.DB.QueryRow(
+		`SELECT COUNT(*) FROM users WHERE email = $1 AND userid != $2`,
+		email, currentUserId,
+	).Scan(&count)
+	if err != nil {
+		return false
+	}
+
+	return count > 0
+}
+
+func ModifyUser(updatedUser accountModels.UpdatedUser, currentEmail, currentUserId string) (accountModels.SanitizedUser, error) {
+	var ModifiedUser accountModels.User
+
+	err := DB.DB.QueryRow(
+		`UPDATE users 
+		SET fname = $1, lname = $2, email = $3
+		WHERE email = $3 And userid = $4
+		RETURNING fname, lname, email, password, userid, role, coins, xp, level, streak, last_active
+		`, updatedUser.Fname, updatedUser.Lname, currentEmail, currentUserId).
+		Scan(&ModifiedUser.Fname, &ModifiedUser.Lname, &ModifiedUser.Email, &ModifiedUser.Password,
+			&ModifiedUser.UserId, &ModifiedUser.UserRole, &ModifiedUser.Coins, &ModifiedUser.Xp,
+			&ModifiedUser.Level, &ModifiedUser.Streak, &ModifiedUser.LastActive)
+
+	return SanitizeUser(ModifiedUser), err
+}
+
+func ModifyPassword(hashedPassword, email string) error {
+	_, err := DB.DB.Exec(
+		`UPDATE users
+		SET password = $1
+		WHERE email = $2
+		`, hashedPassword, email)
+	return err
+}
