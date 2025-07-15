@@ -1,3 +1,18 @@
+// Package middlewares provides reusable middleware functions for securing routes
+// and managing request authentication in your Gin web application.
+//
+// It includes helpers for verifying JWT access tokens, extracting user claims,
+// and ensuring that only authenticated requests can access protected endpoints.
+//
+// Typical usage:
+//
+//	router := gin.Default()
+//	router.Use(middlewares.RequireAuth)
+//
+// The RequireAuth middleware validates incoming JWT tokens, extracts user information,
+// and attaches it to the request context for downstream handlers.
+//
+// All JWT secrets must be configured in environment variables for security.
 package middlewares
 
 import (
@@ -11,6 +26,31 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// RequireAuth is a Gin middleware that ensures a valid JWT access token is provided
+// in the Authorization header for protected routes.
+//
+// It expects the header in the format:
+//
+//	Authorization: Bearer <access_token>
+//
+// The middleware will:
+//   - Verify that the header is present and correctly formatted.
+//   - Parse the token using HMAC SHA-256 with the secret from ACCESS_SECRET.
+//   - Validate the token's signature, expiration, and required claims.
+//   - Abort the request with HTTP 401 if the token is invalid or expired.
+//   - On success, attach the user's Email and UserId claims to the request context,
+//     allowing downstream handlers to access them via c.Get("Email") and c.Get("UserId").
+//
+// Example:
+//
+//	router := gin.Default()
+//	router.Use(middlewares.RequireAuth)
+//
+//	router.GET("/protected", func(c *gin.Context) {
+//	    email := c.GetString("Email")
+//	    userId := c.GetString("UserId")
+//	    c.JSON(200, gin.H{"email": email, "userId": userId})
+//	})
 func RequireAuth(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
