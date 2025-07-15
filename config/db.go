@@ -1,4 +1,4 @@
-// Package config provides application configuration utilities.
+// Package db provides application configuration utilities.
 //
 // It includes database connection management using sqlx with PostgreSQL.
 // The ConnectDB function initializes a global sqlx.DB instance that is used
