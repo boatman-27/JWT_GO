@@ -4,17 +4,18 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"jwt/middlewares"
 	"net/http"
+
+	"github.com/boatman-27/JWT_GO/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 
-	DB "jwt/config"
-	accountHelpers "jwt/helpers/account"
-	tokenHelpers "jwt/helpers/tokens"
+	DB "github.com/boatman-27/JWT_GO/config"
+	accountHelpers "github.com/boatman-27/helpers/account"
+	tokenHelpers "github.com/boatman-27/helpers/tokens"
 
-	accountModels "jwt/models"
+	accountModels "github.com/boatman-27/models"
 
 	"golang.org/x/crypto/bcrypt"
 )

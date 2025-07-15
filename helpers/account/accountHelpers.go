@@ -6,8 +6,9 @@ import (
 	"time"
 
 	// "github.com/gin-gonic/gin"
-	DB "jwt/config"
-	accountModels "jwt/models"
+	accountModels "github.com/boatman-27/JWT_GO/models"
+
+	DB "github.com/boatman-27/JWT_GO/config"
 
 	"golang.org/x/crypto/bcrypt"
 )

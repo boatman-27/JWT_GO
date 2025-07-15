@@ -1,4 +1,4 @@
-module jwt
+module github.com/boatman-27/JWT_GO
 
 go 1.24.1
 
