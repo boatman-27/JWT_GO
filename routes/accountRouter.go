@@ -12,10 +12,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 
 	DB "github.com/boatman-27/JWT_GO/config"
-	accountHelpers "github.com/boatman-27/helpers/account"
-	tokenHelpers "github.com/boatman-27/helpers/tokens"
+	accountHelpers "github.com/boatman-27/JWT_GO/helpers/account"
+	tokenHelpers "github.com/boatman-27/JWT_GO/helpers/tokens"
 
-	accountModels "github.com/boatman-27/models"
+	accountModels "github.com/boatman-27/JWT_GO/models"
 
 	"golang.org/x/crypto/bcrypt"
 )

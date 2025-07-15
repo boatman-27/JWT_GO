@@ -1,11 +1,11 @@
 package main
 
 import (
-	DB "github.com/boatman-27/config"
+	DB "github.com/boatman-27/JWT_GO/config"
 
 	"github.com/gin-gonic/gin"
 
-	accountRouter "github.com/boatman-27/routes"
+	accountRouter "github.com/boatman-27/JWT_GO/routes"
 )
 
 func main() {
