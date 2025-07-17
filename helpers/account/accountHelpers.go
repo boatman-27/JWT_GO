@@ -52,18 +52,18 @@ import (
 //   - email: The email address of the user to find.
 //
 // Returns:
-//   - accountModels.User: The complete user data including sensitive fields like the password.
-//   - error: An error if no user is found or the query fails.
-func GetUserData(email string) (accountModels.User, error) {
+//   - *accountModels.User: A pointer to the complete user data including sensitive fields like the password.
+//     Returns nil if the user is not found or an error occurs.
+//   - error: An error if the query fails or no user matches the provided email.func GetUserData(email string) (*accountModels.User, error) {
+func GetUserData(email string) (*accountModels.User, error) {
 	var user accountModels.User
-
 	err := DB.DB.QueryRow("SELECT id, fname, lname, email, userid, role, coins, xp, password from users WHERE email = $1", email).
 		Scan(&user.ID, &user.Fname, &user.Lname, &user.Email, &user.UserId, &user.UserRole, &user.Coins, &user.Xp, &user.Password)
 	if err != nil {
-		return accountModels.User{}, err
+		return nil, err // user not found
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 // ComparePasswords compares a plaintext password with its hashed version
@@ -87,11 +87,12 @@ func ComparePasswords(enteredPassword, hashedPassword string) bool {
 // back to the client in API responses.
 //
 // Parameters:
-//   - user: The complete User struct.
+//   - user: A pointer to the User object to be sanitized.
 //
 // Returns:
-//   - accountModels.SanitizedUser: A copy of the user data with no password.
-func SanitizeUser(user accountModels.User) accountModels.SanitizedUser {
+//   - *accountModels.SanitizedUser: A pointer to the sanitized version of the created user.
+//     Returns nil if the operation fails.
+func SanitizeUser(user *accountModels.User) *accountModels.SanitizedUser {
 	sanitized := accountModels.SanitizedUser{
 		Fname:    user.Fname,
 		Lname:    user.Lname,
@@ -104,7 +105,7 @@ func SanitizeUser(user accountModels.User) accountModels.SanitizedUser {
 		Streak:   user.Streak,
 	}
 
-	return sanitized
+	return &sanitized
 }
 
 // CheckIfEmailExists checks if there is any user in the database with the given email.
@@ -143,19 +144,20 @@ func CheckIfUserIdExists(userid string) bool {
 	return useridCount > 0
 }
 
-// CreateNewUser inserts a new user record into the database and returns a sanitized version.
+// CreateNewUser inserts a new user record into the database and returns a sanitized pointer.
 //
 // It uses parameterized SQL to prevent SQL injection. The user is assigned a default
 // role of "user", starts with zero coins and XP, level 1, and a zero streak.
 //
 // Parameters:
-//   - newUser: The NewUser struct containing user input data.
+//   - newUser: A pointer to the NewUser struct containing user input data.
 //   - hashedPassword: The bcrypt-hashed password to store securely.
 //
 // Returns:
-//   - accountModels.SanitizedUser: A sanitized version of the created user.
+//   - *accountModels.SanitizedUser: A pointer to the sanitized version of the created user.
+//     Returns nil if the operation fails.
 //   - error: An error if the insert or scan fails.
-func CreateNewUser(newUser accountModels.NewUser, hashedPassword string) (accountModels.SanitizedUser, error) {
+func CreateNewUser(newUser *accountModels.NewUser, hashedPassword string) (*accountModels.SanitizedUser, error) {
 	var createdUser accountModels.User
 
 	err := DB.DB.QueryRow(`
@@ -178,7 +180,9 @@ func CreateNewUser(newUser accountModels.NewUser, hashedPassword string) (accoun
 		&createdUser.UserId, &createdUser.UserRole, &createdUser.Coins, &createdUser.Xp,
 		&createdUser.Level, &createdUser.Streak, &createdUser.LastActive,
 	)
-	return SanitizeUser(createdUser), err
+
+	sanitized := SanitizeUser(&createdUser)
+	return sanitized, err
 }
 
 // CheckEmailExistsForUpdate checks if another user (excluding the current user)
@@ -208,30 +212,33 @@ func CheckEmailExistsForUpdate(email, currentUserId string) bool {
 // ModifyUser updates a user's profile details (first name, last name, and email)
 // and returns the updated sanitized user.
 //
-// It ensures only the user with the matching email and user ID is updated.
+// It ensures that only the user with the matching current email and user ID is updated.
+// The update is performed using a parameterized SQL query to prevent SQL injection.
 //
 // Parameters:
-//   - updatedUser: The UpdatedUser struct containing the new values.
-//   - currentEmail: The user's current email to match.
-//   - currentUserId: The user's unique ID to match.
+//   - updatedUser: A pointer to the UpdatedUser struct containing the new values.
+//   - currentEmail: The user's current email address used for matching.
+//   - currentUserId: The user's unique ID used for matching.
 //
 // Returns:
-//   - accountModels.SanitizedUser: The sanitized version of the updated user.
-//   - error: An error if the update or scan fails.
-func ModifyUser(updatedUser accountModels.UpdatedUser, currentEmail, currentUserId string) (accountModels.SanitizedUser, error) {
+//   - *accountModels.SanitizedUser: A pointer to the sanitized version of the updated user.
+//     Returns nil if the update fails.
+//   - error: An error if the update or scan operation fails.
+func ModifyUser(updatedUser *accountModels.UpdatedUser, currentEmail, currentUserId string) (*accountModels.SanitizedUser, error) {
 	var ModifiedUser accountModels.User
 
 	err := DB.DB.QueryRow(
 		`UPDATE users 
 		SET fname = $1, lname = $2, email = $3
-		WHERE email = $3 And userid = $4
+		WHERE email = $4 And userid = $5
 		RETURNING fname, lname, email, password, userid, role, coins, xp, level, streak, last_active
-		`, updatedUser.Fname, updatedUser.Lname, currentEmail, currentUserId).
+		`, updatedUser.Fname, updatedUser.Lname, updatedUser.Email, currentEmail, currentUserId).
 		Scan(&ModifiedUser.Fname, &ModifiedUser.Lname, &ModifiedUser.Email, &ModifiedUser.Password,
 			&ModifiedUser.UserId, &ModifiedUser.UserRole, &ModifiedUser.Coins, &ModifiedUser.Xp,
 			&ModifiedUser.Level, &ModifiedUser.Streak, &ModifiedUser.LastActive)
 
-	return SanitizeUser(ModifiedUser), err
+	sanitized := SanitizeUser(&ModifiedUser)
+	return sanitized, err
 }
 
 // ModifyPassword updates a user's password hash in the database.

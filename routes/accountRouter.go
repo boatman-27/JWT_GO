@@ -289,7 +289,7 @@ func Register(c *gin.Context) {
 	}
 
 	// create and return Sanitized User
-	sanitizedUser, err := accountHelpers.CreateNewUser(newUser, string(hashedPassword))
+	sanitizedUser, err := accountHelpers.CreateNewUser(&newUser, string(hashedPassword))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Failed to create new User",
@@ -659,7 +659,7 @@ func UpdateUser(c *gin.Context) {
 		}
 	}
 
-	updatedUserData, err := accountHelpers.ModifyUser(updatedUser, currentEmail.(string), currentUserId.(string))
+	updatedUserData, err := accountHelpers.ModifyUser(&updatedUser, currentEmail.(string), currentUserId.(string))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Error Updating User data",
@@ -758,7 +758,6 @@ func ChangePassword(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(changePasswordData.NewPassword, changePasswordData.ConfirmNewP)
 
 	if changePasswordData.NewPassword != changePasswordData.ConfirmNewP {
 		c.JSON(http.StatusBadRequest, gin.H{
