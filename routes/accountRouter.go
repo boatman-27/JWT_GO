@@ -841,6 +841,6 @@ func AccountRouter(router *gin.Engine) {
 		accountRoutes.GET("/validate", middlewares.RequireAuth, Validate)
 		accountRoutes.GET("/me", middlewares.RequireAuth, GetCurrentUserData)
 		accountRoutes.PUT("/update", middlewares.RequireAuth, UpdateUser)
-		accountRoutes.PUT("changepassword", middlewares.RequireAuth, ChangePassword)
+		accountRoutes.PUT("/changepassword", middlewares.RequireAuth, ChangePassword)
 	}
 }
